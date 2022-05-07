@@ -1,24 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Airtable from "airtable";
+import { useEffect, useState } from "react";
+import Goal from "./components/Goal.js";
+
+const base = new Airtable({ apiKey: "keyBWm4AVqjzrCj6a" }).base(
+  "appsv7USkkmRC6CRq"
+);
 
 function App() {
+  const [goals, setGoals] = useState([]);
+  const [updates, setUpdates] = useState([]);
+  useEffect(() => {
+    base("goals")
+      .select({ view: "Grid view" })
+      .eachPage((records, fetchNextPage) => {
+        console.log(records);
+        setGoals(records);
+        fetchNextPage();
+      });
+    base("updates")
+      .select({ view: "Grid view" })
+      .eachPage((records, fetchNextPage) => {
+        // console.log(records);
+        setUpdates(records);
+        fetchNextPage();
+      });
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <h1>My Goals</h1>
+      {goals.map((goal) => (
+        <Goal key={goal.id} goal={goal} />
+      ))}
+    </>
   );
 }
 
